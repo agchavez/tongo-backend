@@ -25,8 +25,20 @@ func FindUserByEmail(email string) (bool, models.User) {
 	return true, user
 }
 
-func SaveNewUser(user models.User) (models.User, bool) {
-	log.Println(user)
+func FindUserById(id string) (bool, models.User) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	collection := MongoCon.Database("tongo").Collection("users")
+	var user models.User
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
+	if err != nil {
+		return false, user
+	}
+	return true, user
+}
+
+func CreateUser(user models.User) models.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
@@ -34,12 +46,28 @@ func SaveNewUser(user models.User) (models.User, bool) {
 	user.Password, _ = EncripPassword(user.Password)
 	user.CreatedAt = time.Now()
 	_, err := collection.InsertOne(ctx, user)
-
 	if err != nil {
 		log.Fatal(err.Error())
-		return user, true
+		return user
 	}
-	return user, false
+	return user
+}
+
+//Actualizar usuario
+func UpdateUserById(id string, user models.User) models.User {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	collection := MongoCon.Database("tongo").Collection("users")
+	if len(user.Password) > 0 {
+		user.Password, _ = EncripPassword(user.Password)
+	}
+	_, err := collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": user})
+	if err != nil {
+		log.Fatal(err.Error())
+		return user
+	}
+	return user
 }
 
 // Get all users
