@@ -9,7 +9,7 @@ services:
   #   depends_on:
   #     - db
   db: 
-    container_name: mongo
+    container_name: mongo_go
     image: mongo
     ports:
       - "27017:27017"

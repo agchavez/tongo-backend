@@ -20,6 +20,7 @@ func Handlers() {
 	router.HandleFunc("/user/", middlewares.CheckDB(routers.GetUser)).Methods("GET")
 	router.HandleFunc("/user/", middlewares.CheckDB(routers.CreateUser)).Methods("POST")
 	router.HandleFunc("/user/", middlewares.CheckDB(routers.UpdateUser)).Methods("PUT")
+	router.HandleFunc("/auth/login/", middlewares.CheckDB(routers.Login)).Methods("POST")
 
 	PORT := os.Getenv("PORT")
 	if PORT == "" {
